@@ -302,3 +302,23 @@ ggplot(data = hypefactdf) +
   geom_bar(mapping = aes(x = hypefact)) + 
   coord_flip()
 ```
+
+### loanwhy
+
+```{r}
+loanwhy<-read.csv('loanwhy.csv',header = T,na.strings = c("-"))
+
+loanwhy<-as.factor(unlist(loanwhy))
+table(loanwhy)
+
+loanwhy<-revalue(x = loanwhy, replace = c("A" = "Purchasing employment related G&S", "B" = "Real estate", "C" = "Healthcare", "D" = "Education", "E" = "Buying vehicles", "F" = "Emergencies", "G" = "Wedding", "H" = "Food", "I" = "Other"))
+
+tb<-table(loanwhy)
+tb
+loanwhydf<-as.data.frame(loanwhy)
+
+ggplot(data = loanwhydf) +
+  geom_bar(mapping = aes(x = loanwhy)) + 
+  coord_flip()
+
+```
