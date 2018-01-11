@@ -1,0 +1,304 @@
+---
+title: "Survey1"
+author: "Sayar Banerjee"
+date: "1/9/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "/Users/Banner/Documents/Avanti")
+```
+
+## Removing environment variables
+
+```{r}
+rm(list=ls(all=TRUE))
+```
+
+## Load Libraries
+
+```{r}
+
+library(ggplot2)
+library(plyr)
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(RColorBrewer)
+
+```
+
+## Loading in the Survey data 
+
+```{r}
+#A50 needs to be changed
+
+Survey1<-read.csv('Avanti survey data - Data.csv', header = T,na.strings = c('-','--'))
+
+```
+
+## Summary of the dataset
+
+```{r label options}
+
+summary(Survey1)
+
+```
+
+## Removing redundant variables
+
+```{r}
+
+Survey1$X<-NULL
+Survey1$ID<-NULL
+
+```
+
+## Changing variables into appropriate types
+
+```{r}
+
+Survey1$NAME<-as.character(Survey1$NAME)
+
+Survey1$X.<-as.character(Survey1$X.)
+
+
+```
+
+## Missing values
+
+```{r}
+
+sort(colSums(is.na(Survey1)), decreasing = T)
+
+```
+
+## Renaming factors in R
+
+### Demographic/Std. of living
+
+```{r}
+
+Survey1$SEX<-revalue(Survey1$SEX, replace = c("A" = "Male", "B" = "Female"))
+
+Survey1$STATUS<-revalue(Survey1$STATUS, replace = c("A" = "Single", "B" = "Married","C" = "Widow/Widower", "D" = "Divorced/Separated"))
+
+Survey1$R.HLD<-revalue(Survey1$R.HLD, replace = c("A" = "Head", "B" = "Wife", "C" = "Son/Daughter", "D" = "Other"))
+
+Survey1$FINDEC<-revalue(Survey1$FINDEC, replace = c("A" = "Yes", "B" = "No"))
+
+Survey1$AGE<-revalue(Survey1$AGE, replace = c("A" = "18-25", "B" = "25-44", "C" = "45-64", "D" = "64-80"))
+
+Survey1$SCHL<-revalue(Survey1$SCHL, replace = c("A" = "< 5th Grade", "B" = " 5th Grade", "C" = "5th-12th Grade", "D" = "12th Grade", "E" = "Attended College/Uni", "F" = "Comp. College/Uni", "G" = "Other"))
+
+Survey1$LIT<-revalue(Survey1$LIT, replace = c("A" = "Yes", "B" = "No"))
+levels(Survey1$LOANIMP)
+
+```
+
+### Access to credit
+
+```{r}
+
+Survey1$BANK<-revalue(Survey1$BANK, replace = c("A" = "Yes", "B" = "No"))
+
+```
+
+## Data Vizualization
+
+### Analysis of demographic related data
+
+```{r}
+
+# Plotting the distribution of the data w.r.t SEX
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = SEX, fill = SEX))
+
+# Plotting SCHL wit SEX (Education with Sex)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = SCHL, fill = SEX))
+
+# Plotting LIT (literatcy)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = LIT))
+
+```
+
+### Analysis of credit related data
+
+```{r}
+
+# Plotting STATUS with EXP (Marital Status with Expenditure)
+
+ggplot(data = Survey1) +
+  geom_boxplot(mapping = aes(x = STATUS, y = EXP))
+
+# Plotting LOANAMT with BANK (Loan Amount with Bank)
+
+ggplot(data = Survey1) +
+  geom_boxplot(mapping = aes(x = BANK, y = LOANAMT))
+
+# Plotting X.LOAN.1 (Source of Loans)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = X.LOAN.1))
+
+# Plotting %INTRST with DEBTNOW (Interest rate of loan with Debt now)
+
+ggplot(data = Survey1) +
+  geom_count(mapping = aes(x = X.INTRST, y = DEBTNOW))
+
+# Plotting DEBTNOW with X.LOANACTV (Debt with number of active loans)
+
+ggplot(data = Survey1) +
+  geom_count(mapping = aes(x = DEBTNOW, y = X.LOANACTV))
+
+# Plotting HYPFACT (Important factors for borrowing from a bank)
+
+ggplot(data = Survey1) + 
+  geom_bar(mapping = aes(x = HYPFACT))
+
+```
+
+### Analysis of Microfinance related data
+
+```{r}
+
+# Plotting MFI? (Asking whether individual has an idea about MFI)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = MFI.))
+
+# Plotting MFITIME (Duration spent with an MFI)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = MFITIME))
+
+# Plotting MFITRST (Trust towards MFI)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = MFITRST))
+
+# Plotting MFIAGAIN (Would you borrow again from an MFI?)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = MFIAGAIN))
+
+```
+
+### Analysis of Avanti/Tech related data
+
+```{r}
+# Plot PHONE with PHONEWHO (Availability of smartphones vs who holds it)
+
+ggplot(data = Survey1) +
+  geom_count(mapping = aes(x = PHONE, y = PHONEWHO))
+
+# Plot INTERNET (Access to Internet)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = INTERNET))
+
+# Plot GOOGLE (# of people with access to Google. Class by SEX)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = GOOGLE, fill = SEX))
+
+# Plot YOUTUBE (# of people with access to Youtube. Class by SEX)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = YOUTUBE, fill = SEX))
+
+# Plot of AVANTIFEAT (Important features about loan)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = AVANTIFEAT))
+
+# Plot of PHILANTHROPY (Behav. question about Avanti's motives)
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = PHILANTHROPY))
+
+```
+
+
+### STATUS VS X.HLD
+
+```{r}
+ggplot(data = Survey1) +
+  geom_count(mapping  = aes(x = STATUS, y = X.HLD))
+
+```
+
+### INC VS EXP
+
+```{r}
+ggplot(data = Survey1) +
+  geom_point(mapping = aes(x = INC, y = EXP)) +
+  geom_abline()
+```
+
+### X.INTRST VS X.LOAN.1
+
+```{r}
+
+ggplot(data = Survey1) +
+  geom_count(mapping = aes(x = X.INTRST, y = X.LOAN.1))
+table(Survey1$X.LOAN.1)
+
+```
+
+### PHONE
+
+```{r}
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = PHONE))
+
+```
+
+### combining b & c in AVANTIFEAT
+
+### Loan Imp
+```{r}
+loanimp<-read.csv('LoanImp.csv', header = T)
+loanimp<-as.factor(unlist(loanimp))
+
+loanimp<-revalue(x = loanimp, replace = c("A" = "Low Interest Rates", "B" = "Friendly loan dispenser", "C" = "Known loan dispenser", "D" = "Flexible loan plan", "F" = "Reliability of loan dispenser", "E" = "Speed of loan disbursement"))
+
+tb<-table(loanimp)
+tb
+loanimpdf<-as.data.frame(loanimp)
+
+ggplot(data = loanimpdf) +
+  geom_bar(mapping = aes(x = loanimp)) + 
+  coord_flip()
+
+wordcloud(words = names(tb), freq = as.numeric(tb), min.freq = 1,
+          max.words=200, random.order=FALSE, scale=c(2,.3),rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+### hypefact
+
+```{r}
+hypefact<-read.csv('hypefact.csv',header = T)
+
+hypefact<-as.factor(unlist(hypefact))
+table(hypefact)
+
+hypefact<-revalue(x = hypefact, replace = c("A" = "Low Interest Rates", "B" = "Friendly loan dispenser", "C" = "Known loan dispenser", "D" = "Flexible loan plan", "E" = "Distance to get loan", "F" = "Speed of loan disbursement"))
+
+tb<-table(hypefact)
+tb
+hypefactdf<-as.data.frame(hypefact)
+
+ggplot(data = hypefactdf) +
+  geom_bar(mapping = aes(x = hypefact)) + 
+  coord_flip()
+```
