@@ -75,37 +75,6 @@ sort(colSums(is.na(Survey1)), decreasing = T)
 
 ```
 
-## Renaming factors in R
-
-### Demographic/Std. of living
-
-```{r}
-
-Survey1$SEX<-revalue(Survey1$SEX, replace = c("A" = "Male", "B" = "Female"))
-
-Survey1$STATUS<-revalue(Survey1$STATUS, replace = c("A" = "Single", "B" = "Married","C" = "Widow/Widower", "D" = "Divorced/Separated"))
-
-Survey1$R.HLD<-revalue(Survey1$R.HLD, replace = c("A" = "Head", "B" = "Wife", "C" = "Son/Daughter", "D" = "Other"))
-
-Survey1$FINDEC<-revalue(Survey1$FINDEC, replace = c("A" = "Yes", "B" = "No"))
-
-Survey1$AGE<-revalue(Survey1$AGE, replace = c("A" = "18-25", "B" = "25-44", "C" = "45-64", "D" = "64-80"))
-
-Survey1$SCHL<-revalue(Survey1$SCHL, replace = c("A" = "< 5th Grade", "B" = " 5th Grade", "C" = "5th-12th Grade", "D" = "12th Grade", "E" = "Attended College/Uni", "F" = "Comp. College/Uni", "G" = "Other"))
-
-Survey1$LIT<-revalue(Survey1$LIT, replace = c("A" = "Yes", "B" = "No"))
-levels(Survey1$LOANIMP)
-
-```
-
-### Access to credit
-
-```{r}
-
-Survey1$BANK<-revalue(Survey1$BANK, replace = c("A" = "Yes", "B" = "No"))
-
-```
-
 ## Data Vizualization
 
 ### Analysis of demographic related data
@@ -264,7 +233,23 @@ ggplot(data = Survey1) +
 
 ### combining b & c in AVANTIFEAT
 
+```{r}
+
+levels(Survey1$AVANTIFEAT)
+Survey1$AVANTIFEAT<-revalue(x = Survey1$AVANTIFEAT, replace = c("A" = "Tata", "B" = "Aadhar", "C" = "Aadhar", "D" = "Google Team"))
+
+```
+### Avantifeat
+
+```{r}
+
+ggplot(data = Survey1) +
+  geom_bar(mapping = aes(x = AVANTIFEAT))
+
+```
+
 ### Loan Imp
+
 ```{r}
 loanimp<-read.csv('LoanImp.csv', header = T)
 loanimp<-as.factor(unlist(loanimp))
@@ -322,3 +307,4 @@ ggplot(data = loanwhydf) +
   coord_flip()
 
 ```
+
